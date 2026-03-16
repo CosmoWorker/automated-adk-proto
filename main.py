@@ -4,27 +4,31 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Header
 from workflow.tasks_queue import TaskQueue
 from samp_agent.agent import root_agent
+from google.adk.sessions import Session
 
 queue = TaskQueue()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+
 
 def main():
     print("Hello from adk-samp!")
 
 
 async def worker():
-    while True:    
+    while True:
         task = queue.next_task()
         if task:
             try:
                 root_agent.run_async(task.issue_txt)
                 await asyncio.sleep(2)
                 queue.mark_completed(task)
+                logger.info(f"Task with {id} completed")
             except Exception as e:
                 logger.error(f"Agent failed on task {task.id}: {e}")
         else:
             await asyncio.sleep(1)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,15 +37,20 @@ async def lifespan(app: FastAPI):
 
     worker_task.cancel()
 
+
 app = FastAPI(lifespan=lifespan)
 
-@app.post("/webhook")
-async def create_task(payload: dict, x_github_event:str = Header(None)):
+
+@app.post("/webhookpr")
+async def create_task(payload: dict, x_github_event: str = Header(None)):
     if x_github_event == "issues":
         if payload["issue"]["body"]:
-            issue_txt = f'Title: {payload["issue"]["title"]}\nBody:\n{payload["issue"]["body"]}'
+            issue_txt = (
+                f"Title: {payload['issue']['title']}\nBody:\n{payload['issue']['body']}"
+            )
             task = queue.add_task(issue_txt)
             return {"message": "Task queued", "task_id": task.id}
+
 
 if __name__ == "__main__":
     main()
