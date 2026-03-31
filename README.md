@@ -1,6 +1,12 @@
 ### Sample Automated PR Workflow
 Demonstrates a simple workflow from ingestion to PR using Agent Development Kit (ADK).
 
+### Features
+* A fastapi webhook endpoint to receive Github Issues.
+* Implements an In-memory `TaskQueue` & an async background worker loop.
+* Uses Google Agent Development Kit for routing agent LLM logic.
+* Tool Calling & Multi Agent Delegation (LiteLLM & Groq for diverse model access).
+
 ### System Design
 ```mermaid
 graph TD
