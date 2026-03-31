@@ -1,10 +1,18 @@
 from google.adk.agents.llm_agent import Agent
+from google.adk.tools.agent_tool import AgentTool
 from google.adk.models.lite_llm import LiteLlm
 from tools import read_format, make_pr
 
 MODEL_GROQ_OPENAI = "groq/openai/gpt-oss-120b"
 MODEL_GROQ_KIMI = "groq/moonshotai/kimi-k2-instruct-0905"
+GEMINI_MODEL = "gemini-2.5-flash"
 
+search_agent = Agent(
+    model=GEMINI_MODEL,
+    name="SearchToolAgent",
+    description="You are search tool required to get info about malware analysis",
+    instruction="Given a query about malware behavior or APIs, search and return concise, technical explanations often aiding wrt Rule creation",
+)
 
 root_agent = Agent(
     model=LiteLlm(model=MODEL_GROQ_OPENAI),
@@ -15,6 +23,6 @@ root_agent = Agent(
     "format.md file is only to understand each and every rule definition and how its used. It is just a REFERENCE for you to make a valid yml rule"
     "Understanding the github issue is important, and then generate yml rule file after relying on your internal knowledge and the context gathered from the issue and any links. "
     "IMPORTANT: Always generate a safe, lowercase branch name without spaces, and ensure the file name ends in .yml. "
-    "Then, generate the appropriate rule and use 'make_pr' to make a PR with the appropriate file name (DO NOT ASK PERMISSIONS)",    
-    tools=[read_format.read_format_md, make_pr.post_pr]
+    "Then, generate the appropriate rule and use 'make_pr' to make a PR with the appropriate file name (DO NOT ASK PERMISSIONS)",
+    tools=[read_format.read_format_md, make_pr.post_pr, AgentTool(search_agent)],
 )
