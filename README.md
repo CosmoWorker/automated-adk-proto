@@ -26,3 +26,5 @@ graph TD
     end
     
     PR -->|Automated PR| GH_PR[GitHub: capa-rules Repo]
+
+### CICD Workflow Deployment
