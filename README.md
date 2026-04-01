@@ -26,5 +26,12 @@ graph TD
     end
     
     PR -->|Automated PR| GH_PR[GitHub: capa-rules Repo]
+```
+
+### Setup
+* Make sure to run export command everytime some new package is added. <br>
+```uv add <package_name>``` <br>
+```uv export --format requirements.txt > requirements.txt```
 
 ### CICD Workflow Deployment
+This repository includes a `.github/workflows/deploy0.yml` configured for Google Cloud Run. It ensures that all code passes tests before building and pushing to the Google Artifact Registry.
